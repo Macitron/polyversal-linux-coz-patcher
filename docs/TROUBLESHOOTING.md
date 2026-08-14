@@ -53,7 +53,7 @@ Read [the instructions](/README.md#setup) carefully! A;C currently requires [a c
 
 This is a known issue, though it is unknown why this happens. It was first observed in Steins;Gate and later manifested in Chaos;Child and other games. The script has fixes for affected games we currently know about, though it is very possible more games may be affected in the future.
 
-If you find that another game has this issue, you can manually fix it by backing up the official launcher EXE and then symlinking it to the patched launcher, `LauncherC0.exe`. If you don't know what that means, please open a GitHub issue noting on which game this happened to you. (If you do know, open a PR! The functions are `apply_launcherfix` and `undo_launcherfix`.)
+If you find that another game has this issue, you can manually fix it by backing up the official launcher EXE and then symlinking it to the patched launcher, `LauncherC0.exe`. If you don't know what that means, please open a GitHub issue noting on which game this happened to you. (If you do know, open a PR! Look for the map called `default_launchers`.)
 
 ## How to run from the command line
 

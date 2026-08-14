@@ -11,10 +11,7 @@ This page acts as a quick index/checklist to run through when these momentous oc
   - [ ] `set_game()`
     - [ ] Add game to Zenity list when setting `arg_game`
     - [ ] Add to switch case setting game vars
-  - [ ] `apply/undo_launcherfix`
-    - Might not be needed, only necessary if the game has the launcher issue
-    - [ ] Add gamecode to guard switch statement on entry
-    - [ ] Set default launcher name
+  - [ ] `default_launchers` - Add mapping if launcherfix is needed
 - [ ] `docs/GAMES.md`
   - [ ] Add new table row for the game with the latest working Proton version
 - [ ] `docs/VERIFY.md`
