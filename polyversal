@@ -585,22 +585,35 @@ function copy_steamgrid() {
   fi
 }
 
-# S;G and C;C both launch the default launcher (Launcher.exe and launcher.exe,
-# respectively) instead of the patched LauncherC0.exe.
-# Fix by symlinking default launcher to patched.
-# Jan 2024: S;G0 too
-# Nov 2024; S;GLBP
+# The map of gamecodes that need the launcherfix applied to the names of their default launchers.
+# Key lookup is used to determine whether a game needs a launcherfix in the first place.
+declare -A default_launchers=(
+  # VVV update THIS when a new launcherfix is needed VVV #
+  [sg]=Launcher.exe
+  [cc]=launcher.exe 
+  [sg0]=launcher.exe  # Jan 2024
+  [lbp]=Launcher.exe  # Nov 2024
+  [mde]=Launcher.exe  # Jul 2025
+  [rne]=launcher.exe  # Aug 2026
+)
+
+# Some games in the series suffer an issue where the official, default launcher launches instead of
+# the patched LauncherC0.exe, and only when it's closed does the CoZ launcher appear.
+# After all these years, we still don't know why.
+# This is easily fixed by symlinking the default launcher to the patched one so there's no room
+# for error.
+#
+# This function is meant to be called for ALL patch installations, i.e. the check for whether a
+# game actually needs the fix lies within this function rather than the caller.
 function apply_launcherfix() {
 
   # usage: apply_launcherfix <gamecode>
 
   local gamecode=$1
-  case $gamecode in
-    # allow these gamecodes, they need the fix
-    sg | cc | sg0 | lbp | mde) ;;
-    # reject all else
-    *) return 0 ;;
-  esac
+  if [[ ! -v default_launchers[$gamecode] ]]; then
+    log_info "skipping launcherfix application for $gamecode"
+    return 0
+  fi
 
   log_info "fixing $gamecode launcher issue ..."
   if ! pushd "$gamedir"; then
@@ -609,24 +622,16 @@ function apply_launcherfix() {
     return 2
   fi
 
-  local defaultlauncher
-  case $gamecode in
-    sg | lbp | mde) defaultlauncher=Launcher.exe  ;;
-    cc | sg0) defaultlauncher=launcher.exe  ;;
-    *)
-      log_error "$gamecode does not have a launcherfix applied. how did you do this?"
-      popd
-      return 3  ;;
-  esac
+  local default_launcher=${default_launchers[$gamecode]}
 
-  if [[ ! ( -f $defaultlauncher && -f LauncherC0.exe ) ]]; then
+  if [[ ! ( -f $default_launcher && -f LauncherC0.exe ) ]]; then
     log_error "the default launcher and CoZ launcher were not both present in gamedir '$gamedir', unable to proceed with fix"
-    ls -l "$defaultlauncher" LauncherC0.exe >&2
+    ls -l "$default_launcher" LauncherC0.exe >&2
     zenity_error "$gamename's game directory did not have the default and patched launcher both present, unable to apply launcher fix. Was the patch installed correctly?"
-  elif [[ $(readlink "$defaultlauncher") == LauncherC0.exe ]]; then
-    log_warn "$defaultlauncher was already symlinked to LauncherC0, has this script already been run?"
+  elif [[ $(readlink "$default_launcher") == LauncherC0.exe ]]; then
+    log_warn "$default_launcher was already symlinked to LauncherC0, has this script already been run?"
   else
-    if mv "$defaultlauncher" "${defaultlauncher}_bkp" && ln -s LauncherC0.exe "$defaultlauncher"; then
+    if mv "$default_launcher" "${default_launcher}_bkp" && ln -s LauncherC0.exe "$default_launcher"; then
       log_info "symlinked $gamecode launcher"
     else
       log_error "unknown error occurred symlinking $gamecode launcher"
@@ -636,16 +641,16 @@ function apply_launcherfix() {
   popd
 }
 
-# Undo the launcher fix for uninstallation
+# apply_launcherfix(), but in reverse.
 function undo_launcherfix() {
 
   # usage: undo_launcherfix <gamecode>
 
   local gamecode=$1
-  case $gamecode in
-    sg | cc | sg0 | lbp | mde) ;;
-    *) return 0 ;;
-  esac
+  if [[ ! -v default_launchers[$gamecode] ]]; then
+    log_info "skipping launcherfix reversion for $gamecode"
+    return 0
+  fi
 
   log_info "undoing $gamecode launcher fix ..."
   if ! pushd "$gamedir"; then
@@ -654,23 +659,15 @@ function undo_launcherfix() {
     return 1
   fi
 
-  local defaultlauncher
-  case $gamecode in
-    sg | lbp | mde) defaultlauncher=Launcher.exe  ;;
-    cc | sg0) defaultlauncher=launcher.exe  ;;
-    *)
-      log_error "$gamecode does not have a launcherfix, nothing to undo. how?"
-      popd
-      return 3  ;;
-  esac
+  local default_launcher=${default_launchers[$gamecode]}
 
-  if [[ ! ( -L $defaultlauncher && -f ${defaultlauncher}_bkp && -f LauncherC0.exe ) ]]; then
+  if [[ ! ( -L $default_launcher && -f ${default_launcher}_bkp && -f LauncherC0.exe ) ]]; then
     log_warn "expected files/symlink in '$gamedir' were not present, unable to unapply launcher fix"
-    ls -l "$defaultlauncher"{,_bkp} LauncherC0.exe >&2
+    ls -l "$default_launcher"{,_bkp} LauncherC0.exe >&2
     popd
     return 2
   else
-    if unlink "$defaultlauncher" && mv "${defaultlauncher}_bkp" "$defaultlauncher"; then
+    if unlink "$default_launcher" && mv "${default_launcher}_bkp" "$default_launcher"; then
       log_info "$gamecode launcher restored to original"
     else
       log_error "unknown error occurred undoing $gamecode launcher symlink"
