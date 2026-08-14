@@ -638,6 +638,7 @@ function apply_launcherfix() {
       zenity_error "An unknown error occurred while applying launcher fix to $gamename. Execution will continue; consult the logs for details."
     fi
   fi
+  # shellcheck disable=SC2164
   popd
 }
 
@@ -664,6 +665,7 @@ function undo_launcherfix() {
   if [[ ! ( -L $default_launcher && -f ${default_launcher}_bkp && -f LauncherC0.exe ) ]]; then
     log_warn "expected files/symlink in '$gamedir' were not present, unable to unapply launcher fix"
     ls -l "$default_launcher"{,_bkp} LauncherC0.exe >&2
+    # shellcheck disable=SC2164
     popd
     return 2
   else
@@ -674,6 +676,7 @@ function undo_launcherfix() {
       zenity_error "An unexpected error occurred undoing launcher fix for $gamename while uninstalling. Check the logs for details."
     fi
   fi
+  # shellcheck disable=SC2164
   popd
 }
 
@@ -1081,6 +1084,7 @@ Download and install it anyway? (y/n): " answer
 }
 
 # clean up temp files/pipes from downloading
+# shellcheck disable=SC2329
 function cleanup_proton_install() {
   local ret=$?
 
@@ -1092,7 +1096,7 @@ function cleanup_proton_install() {
   # tar extraction cleanup
   [[ -d $DATADIR/$AC_PROTON_DIRNAME ]] && rm -rf "${DATADIR:?}/$AC_PROTON_DIRNAME"
 
-  exit $ret
+  exit "$ret"
 }
 
 function start_screen() {
