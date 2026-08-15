@@ -174,7 +174,15 @@ function is_cmd() {
 # Shadows any call to zenity so we don't accidentally forget an $is_gui
 function zenity() {
   ! $is_gui && return 0
-  command zenity "$@"
+
+  # Zenity (at least on my machine) outputs a TON of noisy logs about missing CSS files or whatever,
+  # makes it nearly impossible to tell what on earth the actual script is outputting. We could
+  # probably silence the logs indscriminately without any downsides, but you ~never know~
+  if $opt_loud_zenity; then
+    command zenity "$@"
+  else
+    command zenity "$@" 2>/dev/null
+  fi
 }
 
 # Happens often enough to warrant a function
@@ -230,6 +238,7 @@ opt_debug=false
 opt_filelog=false
 opt_force_flatpak=false
 opt_allow_root=false
+opt_loud_zenity=false
 STEAMROOT=$HOME/.steam/root
 while true; do
   case "$1" in
@@ -250,6 +259,9 @@ while true; do
       shift ;;
     --i-really-want-to-run-this-as-root-dont-question-me-boy)
       opt_allow_root=true
+      shift ;;
+    -Z | --zenity-log)
+      opt_loud_zenity=true
       shift ;;
     --)
       shift
