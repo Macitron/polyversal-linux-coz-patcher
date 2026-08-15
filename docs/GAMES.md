@@ -13,7 +13,7 @@ Below is a table with relevant information for each game that currently has a pa
 | STEINS;GATE                           | 8                  | sg             | 412830     |
 | STEINS;GATE ELITE                     | 9                  | sge            | 819030     |
 | STEINS;GATE: My Darling's Embrace     | 9                  | mde            | 970560     |
-| ROBOTICS;NOTES ELITE                  | 9                  | rne            | 1111380    |
+| ROBOTICS;NOTES ELITE                  | 11                 | rne            | 1111380    |
 | STEINS;GATE: Linear Bounded Phenogram | 9                  | lbp            | 930910     |
 | CHAOS;CHILD                           | 8                  | cc             | 970570     |
 | STEINS;GATE 0                         | 8                  | sg0            | 825630     |
